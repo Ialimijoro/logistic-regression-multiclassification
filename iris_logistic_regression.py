@@ -100,7 +100,7 @@ class IrisLogisticRegression() :
     print("petal length: {}".format(petal_length))
     print("petal width: {}".format(petal_width))
 
-    print(p[max_p])
+    #print(p[max_p])
 
     if max_p == 0 : 
       print('We can say that the flower is an Iris Cetosa')
