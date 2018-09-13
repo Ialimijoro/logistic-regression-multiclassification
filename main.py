@@ -11,7 +11,7 @@ def run() :
   name_data = np.array(data.name)
 
   irisLogisticRegression = IrisLogisticRegression(sepal_length_data,sepal_width_data,petal_length_data,petal_width_data,name_data)
-  irisLogisticRegression.predict(5.1, 3.2, 1.8, 0.6)
+  irisLogisticRegression.predict(5.1,3.2,1.3,0.2)
 
 if __name__ == '__main__' :
   run()
