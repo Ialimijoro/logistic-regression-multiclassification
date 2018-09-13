@@ -12,8 +12,10 @@ class IrisLogisticRegression() :
   def sigmoid(self, x):
     return (1 / (1 + np.exp(-x)))
 
+  # Transpose theta
+  # thetas[0] * features[0] + thetas[1] * features[1] + thetas[2] * features[2] + thetas[3] * features[3] + thetas[4] * features[4]
   def z(self, thetas, features) :
-    return thetas[0] * features[0] + thetas[1] * features[1] + thetas[2] * features[2] + thetas[3] * features[3] + thetas[4] * features[4] 
+    return np.vdot(thetas, features)
 
   def hypothesis(self, thetas, features) :
     return self.sigmoid(self.z(thetas, features))
@@ -78,21 +80,27 @@ class IrisLogisticRegression() :
     thetas = []
 
     features = [1, sepal_length, sepal_width, petal_length, petal_width]
-   
+
+    #classify Iris-cetosa as 1
     thetas.append(self.gradient_descent(1))
     p.append(self.hypothesis(thetas[0], features))
 
+    #classify Iris-versicolor as 1
     thetas.append(self.gradient_descent(2))
     p.append(self.hypothesis(thetas[1], features))
 
+    #classify Iris-virginica as 1
     thetas.append(self.gradient_descent(3))
     p.append(self.hypothesis(thetas[2], features))
 
+    #get the max probability from the hypothesises
     max_p = np.argmax(p)
     print("Given the following\nsepal length: {}".format(sepal_length))
     print("sepal width: {}".format(sepal_width))
     print("petal length: {}".format(petal_length))
     print("petal width: {}".format(petal_width))
+
+    print(p[max_p])
 
     if max_p == 0 : 
       print('We can say that the flower is an Iris Cetosa')
