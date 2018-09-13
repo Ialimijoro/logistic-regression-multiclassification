@@ -12,31 +12,41 @@ class IrisLogisticRegression() :
   def sigmoid(self, x):
     return (1 / (1 + np.exp(-x)))
 
+  # Transpose theta
+  # thetas[0] * features[0] + thetas[1] * features[1] + thetas[2] * features[2] + thetas[3] * features[3] + thetas[4] * features[4]
   def z(self, thetas, features) :
-    return thetas[0] * features[0] + thetas[1] * features[1] + thetas[2] * features[2] + thetas[3] * features[3] + thetas[4] * features[4] 
+    return np.vdot(thetas, features)
 
   def hypothesis(self, thetas, features) :
     return self.sigmoid(self.z(thetas, features))
 
-  def get_name_code(self, name) :
+  def iris_setosa_classifier_code(self, name) :
     if name == 'Iris-setosa':
       return 1
-    # elif name == 'Iris-versicolor':
-    #   return 
-    # elif  name == 'Iris-virginica':
-    #   return 3
     else :
       return 0
 
-  def cost(self, thetas):
-    m = len(self.name_data)
-    for i in range(m) :
-      features = [ 1, self.sepal_length_data[i], self.sepal_width_data[i], self.petal_length_data[i], self.petal_width_data[i] ]
-      cost += self.name_data * np.log(self.hypothesis(thetas, features)) + (1 - self.get_name_code(self.name_data[i])) * np.log(1 - self.hypothesis(thetas, features))
-    return - (1/m) * cost
-    # return (-1/m)*sum( self.name_data * np.log(self.hypothesis(thetas, features)) + (1 - self.name_data) * np.log(1 - self.hypothesis(thetas, features)) )
+  def iris_verscicolor_classifier_code(self,name) :
+    if name == 'Iris-versicolor':
+      return 1
+    else :
+      return 0
 
-  def gradient_descent(self):
+  def iris_virginica_classifier_code(self,name) :
+    if name == 'Iris-virginica':
+      return 1
+    else :
+      return 0
+
+  def get_name_code(self, name, classifier) :
+    if classifier == 1 : 
+      return self.iris_setosa_classifier_code(name)
+    elif classifier == 2:
+      return self.iris_verscicolor_classifier_code(name)
+    elif classifier == 3 :
+      return self.iris_virginica_classifier_code(name)
+  
+  def gradient_descent(self, classifier):
     thetas = [0,0,0,0,0]
     thetas_d = [0,0,0,0,0]
     learning_rate = 0.00004
@@ -44,16 +54,16 @@ class IrisLogisticRegression() :
     cost = 0
     m = len(self.name_data)
 
-    for i in range(iterations) :
+    for j in range(iterations) :
       for i in range(m) :
         features = [ 1, self.sepal_length_data[i], self.sepal_width_data[i], self.petal_length_data[i], self.petal_width_data[i] ]
-        cost += self.get_name_code(self.name_data[i]) * np.log(self.hypothesis(thetas, features)) + (1 - self.get_name_code(self.name_data[i])) * np.log(1 - self.hypothesis(thetas, features))
+        cost += self.get_name_code(self.name_data[i], classifier) * np.log(self.hypothesis(thetas, features)) + (1 - self.get_name_code(self.name_data[i], classifier)) * np.log(1 - self.hypothesis(thetas, features))
 
-        thetas_d[0] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i]) )
-        thetas_d[1] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i]) ) * self.sepal_length_data[i]
-        thetas_d[2] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i]) ) * self.sepal_width_data[i]
-        thetas_d[3] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i]) ) * self.petal_length_data[i]
-        thetas_d[4] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i]) ) * self.petal_width_data[i]
+        thetas_d[0] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i], classifier) )
+        thetas_d[1] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i], classifier) ) * self.sepal_length_data[i]
+        thetas_d[2] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i], classifier) ) * self.sepal_width_data[i]
+        thetas_d[3] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i], classifier) ) * self.petal_length_data[i]
+        thetas_d[4] += ( self.hypothesis(thetas, features) -  self.get_name_code(self.name_data[i], classifier) ) * self.petal_width_data[i]
       
       cost = - (1/m) * cost
       # print("theta_0 : {}, theta_1 : {}, theta_2 {}, theta_3 : {}, theta_4 : {}, cost : {}".format(thetas[0], thetas[1], thetas[2], thetas[3], thetas[4], cost))
@@ -64,20 +74,37 @@ class IrisLogisticRegression() :
       thetas[4] = thetas[4] - learning_rate * thetas_d[4]
     
     return thetas
-  
-  def predict(self, sepal_length, sepal_width, petal_length, petal_width) :
-    thetas = self.gradient_descent()
-    p = self.hypothesis(thetas, [1, sepal_length, sepal_width, petal_length, petal_width])
 
+  def predict(self, sepal_length, sepal_width, petal_length, petal_width) :
+    p = []
+    thetas = []
+
+    features = [1, sepal_length, sepal_width, petal_length, petal_width]
+
+    #classify Iris-cetosa as 1
+    thetas.append(self.gradient_descent(1))
+    p.append(self.hypothesis(thetas[0], features))
+
+    #classify Iris-versicolor as 1
+    thetas.append(self.gradient_descent(2))
+    p.append(self.hypothesis(thetas[1], features))
+
+    #classify Iris-virginica as 1
+    thetas.append(self.gradient_descent(3))
+    p.append(self.hypothesis(thetas[2], features))
+
+    #get the max probability from the hypothesises
+    max_p = np.argmax(p)
     print("Given the following\nsepal length: {}".format(sepal_length))
     print("sepal width: {}".format(sepal_width))
     print("petal length: {}".format(petal_length))
     print("petal width: {}".format(petal_width))
 
-    print("probability of being an Iris-setosa: {}".format(p))
-    
-    if p >= 0.5 : 
+    #print(p[max_p])
+
+    if max_p == 0 : 
       print('We can say that the flower is an Iris Cetosa')
-    else : 
-      print('We can say that the flower is not an Iris Cetosa')
-    # print(self.hypothesis(thetas, [1, sepal_length, sepal_width, petal_length, petal_width]))
+    elif max_p == 1 : 
+      print('We can say that the flower is an Iris-versicolor')
+    elif max_p == 2 : 
+      print('We can say that the flower is an Iris-virginica')
